@@ -1,5 +1,6 @@
 from celery import shared_task
 from .models import AccountTransaction, Customer
+import logging
 
 
 @shared_task
@@ -9,14 +10,14 @@ def get_credit_score(customer_id):
         credit = sum(
             list(
                 AccountTransaction.objects.filter(
-                    customer_id=customer_id, transaction_type="credit"
+                    aadhar_id=customer.aadhar_id, transaction_type="credit"
                 )
             )
         )
         debit = sum(
             list(
                 AccountTransaction.objects.filter(
-                    customer_id=customer_id, transaction_type="debit"
+                    aadhar_id=customer.aadhar_id, transaction_type="debit"
                 )
             )
         )
@@ -32,5 +33,5 @@ def get_credit_score(customer_id):
 
         customer.credit_score = credit_score
         customer.save()
-    except Customer.DoesNotExist:
-        pass
+    except Exception as e:
+        logging.error(f"Error while calculating Credit Score.")

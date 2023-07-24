@@ -1,17 +1,13 @@
 from django.db import models
-import uuid
 import json
-from django.contrib.auth.models import User
 from utils.abstract_models import PrimaryKeyModel
 
 
-# or can create a class with ID uuid field and inherit in other classes
-# use Timestamped Model
+# Customer Model
 class Customer(PrimaryKeyModel):
     # customer = models.OneToOneField(
     #     User, unique=True, on_delete=models.CASCADE, related_name="customer"
     # )
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     email_id = models.EmailField()
     credit_score = models.IntegerField(null=True, blank=True)
@@ -22,6 +18,7 @@ class Customer(PrimaryKeyModel):
         return self.name
 
 
+# to store customers account balance and transactions
 class AccountTransaction(models.Model):
     TRANSACTION_CHOICES = [
         ("credit", "CREDIT"),
@@ -36,40 +33,40 @@ class AccountTransaction(models.Model):
         return self.transaction_type + " - " + self.amount
 
 
+# to store Loan details against customer
 class Loan(PrimaryKeyModel):
     LOAN_CATEGORIES = [
-        ("Car", "Car"),
-        ("Home", "Home"),
-        ("Education", "Education"),
-        ("Personal", "Personal"),
+        ("car", "car"),
+        ("home", "home"),
+        ("education", "education"),
+        ("personal", "personal"),
     ]
 
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     loan_type = models.CharField(max_length=25, choices=LOAN_CATEGORIES)
     principal_amount = models.PositiveIntegerField()
     interest_rate = models.DecimalField(decimal_places=2, max_digits=5)
-    loan_term = models.PositiveIntegerField()  # months
+    loan_term = models.PositiveIntegerField()
     disbursal_date = models.DateTimeField(auto_now=True)
-    # emi = models.DecimalField(decimal_places=2, max_digits=10)
     start_date = models.DateField(auto_now=True)
-    end_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
     customer = models.ForeignKey(
         Customer, on_delete=models.CASCADE, related_name="loan_customers"
     )
     remaining_amount = models.PositiveIntegerField(default=20)
 
     def __str__(self):
-        return self.customer + " - " + self.loan_type + " Loan"
+        return self.customer.name + " - " + self.loan_type + " Loan"
 
 
-class LoanDetails(models.Model):
-    loan_id = models.ForeignKey(Loan, on_delete=models.CASCADE, related_name="loan")
-    # current_transaction_amount = models.DecimalField(decimal_places=2, max_digits=10)
+# to store loan transactional details against loan
+class LoanDetail(models.Model):
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE, related_name="loan")
     last_transaction_date = models.DateTimeField(blank=True, null=True)
-    next_emi_date = models.DateField()
-    next_emi_amount = models.DecimalField(decimal_places=2, max_digits=10)
+    next_emi_date = models.DateField(blank=True, null=True)
+    next_emi_amount = models.DecimalField(
+        decimal_places=2, max_digits=10, blank=True, null=True
+    )
     initial_emi_amounts = models.CharField(max_length=1000)
-    adjusted_emi_amounts = models.CharField(max_length=1000)
     total_emis_left = models.IntegerField()
     is_active = models.BooleanField(default=True)
 
@@ -88,7 +85,6 @@ class LoanDetails(models.Model):
 
 # Customer EMI Transactions
 class Transaction(models.Model):
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     payment = models.DecimalField(max_digits=10, decimal_places=2)
     customer = models.ForeignKey(
         Customer, on_delete=models.CASCADE, related_name="customer_transactions"
@@ -97,4 +93,3 @@ class Transaction(models.Model):
         Loan, on_delete=models.CASCADE, related_name="loan_transactions"
     )
     payment_date = models.DateTimeField(auto_now=True)
-    remaining_amount = models.DecimalField(decimal_places=2, max_digits=10, default=20)
