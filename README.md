@@ -7,6 +7,21 @@ Implemented 4 api endpoints to register a new user, process a loan application, 
 Used Celery to calculate Credit Score on the fly.
 Covered almost every conditional logic for loan application as mentioned in the assigment problem statement.
 ```
+
+### Screenshots
+#### Register User API
+![image](https://github.com/sajaldubey/bright-money-loan-management-system/assets/55424712/6020537b-9783-469b-b0eb-a8984d289e49)
+
+#### Apply Loan API 
+![image](https://github.com/sajaldubey/bright-money-loan-management-system/assets/55424712/cb3c563e-2868-449d-8384-88ed078b4d0c)
+
+
+#### Make Payment API
+![image](https://github.com/sajaldubey/bright-money-loan-management-system/assets/55424712/60075068-b703-4b68-ae42-6a5b122300a8)
+
+#### Get Statement API
+![image](https://github.com/sajaldubey/bright-money-loan-management-system/assets/55424712/7158416c-477b-4830-bbcf-317414766e0c)
+
 Create a virtual environment and install all dependencies from requirements.txt file
 
 ```
@@ -55,3 +70,4 @@ POST - api/apply-loan/
 POST - api/make-payment/
 GET  - api/get-statement/
 ```
+
